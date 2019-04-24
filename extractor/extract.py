@@ -1,10 +1,33 @@
+#!/Users/jade/.local/share/virtualenvs/labs-hive-uwrubwZj/bin/python
 # -*- coding: utf-8 -*-
+from lxml import etree
+
+import pyximport
+pyximport.install()
+
+from blocks import Blockifier
 
 '''
-预处理：将网页解析成DOM树，并剔除不可视节点.
+预处理：将网页解析成DOM树，并剔除不可视节点和无意义的节点
 '''
-def preprocess():
-    pass
+def preprocess(htmlstr='', filepath=''):
+    if not filepath:
+        return
+
+    tree = etree.Element("html")
+
+    if filepath:
+        with open(filepath) as f:
+            html = f.read()
+
+            tree = Blockifier.blockify(html)
+
+            f.close()
+
+    if htmlstr:
+        tree = Blockifier.blockify(htmlstr)
+
+    return tree
 
 '''
 获取待提取文本块：根据网页DOM树计算各个块的文本密度，并将文本密度大于<body>块的文本块的上一级文本块作为待提取块.
@@ -33,3 +56,14 @@ def text_tpr():
 '''
 def text_pdr():
     pass
+
+
+if __name__== '__main__':
+    tree = preprocess(filepath='../data/testbbs/1555757176.html')
+
+    hrefs = tree.xpath('//a')
+    for href in hrefs:
+        print(href.get('href'), '\t', href.text)
+
+
+
